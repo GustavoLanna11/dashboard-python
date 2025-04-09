@@ -17,10 +17,3 @@ Para executar, no terminal, use:
 - python -m streamlit run dashboard.py
 Por fim o dashboard estará rodando no localhost, e as conexões aparecerão no terminal!
 
-<hr>
-<h2>Resultado</h2>
-![home](https://github.com/user-attachments/assets/39f8eee3-2c8d-449a-b44b-acb423d64c11)
-![maquinas](https://github.com/user-attachments/assets/e76eeb27-6cb3-4435-b85d-47df3132e0a1)
-![filtro](https://github.com/user-attachments/assets/8c139e5a-f4ca-483b-81b9-622ac2b0fb00)
-
-
