@@ -4,14 +4,12 @@ A fim de organizar as informações de um inventário de máquinas, esse projeto
 <h2>Clonando repositório</h2>
 Copie a url desse repositório, e o clone em sua máquina usando git clone 'url_repositório'
 
-<hr>
 <h2>Preparando Ambiente</h2>
 Após ter o repositório clonado e abrir em seu editor de código, abra um novo terminal e instale as bibliotecas:<br>
 - pip install pandas (para manipulação de dados)<br>
 - pip instal streamlit (para construção dos dashboards)<br>
 - pip install plotly (para construção dos gráficos)<br>
 
-<hr>
 <h2>Executando</h2>
 Para executar, no terminal, use:
 - python -m streamlit run dashboard.py
