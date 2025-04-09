@@ -41,7 +41,6 @@ with col3:
     df_licenca_contagem.columns = ['Licença Windows', 'Quantidade']
     
     fig2 = px.pie(df_licenca_contagem, names="Licença Windows", values="Quantidade", title="Máquinas sem licença",  color="Licença Windows", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
-
     st.plotly_chart(fig2)
 
 with col4:
@@ -50,10 +49,8 @@ with col4:
     df_troca_contagem.columns = ['Troca de máquina', 'Quantidade']
     
     # Criando o gráfico com a contagem
-    fig3 = px.bar(df_troca_contagem, x="Troca de máquina", y="Quantidade", title="Máquinas para Troca",
-                  color="Troca de máquina", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+    fig3 = px.bar(df_troca_contagem, x="Troca de máquina", y="Quantidade", title="Máquinas para Troca",color="Troca de máquina", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
     fig3.update_traces(text=df_troca_contagem["Quantidade"], textposition='outside')
-    
     st.plotly_chart(fig3)
 
 with col5:
@@ -62,8 +59,7 @@ with col5:
     df_upgrade_contagem.columns = ['Upgrade?', 'Quantidade']
     
     # Criando o gráfico de pizza
-    fig4 = px.pie(df_upgrade_contagem, names="Upgrade?", values="Quantidade", title="Máquinas para Upgrade",
-                  color="Upgrade?", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+    fig4 = px.pie(df_upgrade_contagem, names="Upgrade?", values="Quantidade", title="Máquinas para Upgrade",color="Upgrade?", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
     # Exibindo o gráfico
     st.plotly_chart(fig4)
 
