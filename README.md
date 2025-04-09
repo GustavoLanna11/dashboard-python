@@ -6,10 +6,10 @@ Copie a url desse repositório, e o clone em sua máquina usando git clone 'url_
 
 <hr>
 <h2>Preparando Ambiente</h2>
-Após ter o repositório clonado e abrir em seu editor de código, abra um novo terminal e instale as bibliotecas:
-- pip install pandas (para manipulação de dados)
-- pip instal streamlit (para construção dos dashboards)
-- pip install plotly (para construção dos gráficos)
+Após ter o repositório clonado e abrir em seu editor de código, abra um novo terminal e instale as bibliotecas:<br>
+- pip install pandas (para manipulação de dados)<br>
+- pip instal streamlit (para construção dos dashboards)<br>
+- pip install plotly (para construção dos gráficos)<br>
 
 <hr>
 <h2>Executando</h2>
