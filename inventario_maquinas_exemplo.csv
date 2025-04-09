@@ -1,0 +1,9 @@
+Nome da máquina;Proprietário;Etiqueta;Cidade;Departamento;Marca;Número de Série;Tipo;Modelo;Licença;Processador;Troca de máquina;Tipo de memória;Pentes;Tamanho;Armazenamento;Tipo de armazenamento;Licença Windows;Antivírus;Upgrade?;Em uso?;Observações
+GUSTA-00001;Gustavo Marques;gust-01;Jacupiranga;Tecnologia;Dell;Sem registro;Notebook;Inspiron 14;Windows 10 Pro;I5 - 10400;Não;DDR4;1 de 2;8 GB;250 GB;SSD;Sim;Sim;Não;Sim;
+ISAK-00001;Isabele Kramer;isak-01;Cajati;RH;Dell;Sem registro;Notebook;Inspiron 14;Windows 10 Pro;I3 - 8400;Sim;DDR4;1 de 2;4 GB;250 GB;SSD;Não;Sim;Não;Sim;
+DESKTOP-0001;Gomez;Sem Etiqueta;Jacupiranga;Cadastro;Dell;Sem registro;Desktop;Inspiron 14;Windows 10 Pro;I5 - 11400;Não;DDR4;1 de 2;8 GB;250 GB;SSD;Sim;Sim;Não;Sim;
+DESKTOP-0002;Jonas;Sem Etiqueta;Cajati;Compras;Dell;Sem registro;Notebook;Inspiron 14;Windows 10 Pro;I3 - 8400;Sim;DDR4;1 de 2;8 GB;250 GB;SSD;Não;Sim;Não;Não;
+DESKTOP-0003;Renata;Sem Etiqueta;Jacupiranga;Comercial;Dell;Sem registro;Notebook;Inspiron 14;Windows 10 Pro;I5 - 10400;Não;DDR4;1 de 2;8 GB;250 GB;SSD;Sim;Sim;Não;Não;
+DESKTOP-0004;Giuliana;Sem Etiqueta;Cajati;Marketing;Dell;Sem registro;Notebook;Inspiron 14;Windows 10 Pro;I3 - 8400;Sim;DDR4;1 de 2;8 GB;250 GB;SSD;Não;Sim;Não;Não;
+DESKTOP-0005;Nicolas;Sem Etiqueta;Jacupiranga;Financeiro;Dell;Sem registro;Desktop;Inspiron 14;Windows 10 Pro;I5 - 11400;Não;DDR4;1 de 2;4 GB;250 GB;SSD;Sim;Sim;Sim;Não;
+DESKTOP-0006;Zeca;Sem Etiqueta;Cajati;Diretoria;Dell;Sem registro;Notebook;Inspiron 14;Windows 10 Pro;I3 - 8400;Sim;DDR4;1 de 2;8 GB;250 GB;SSD;Não;Sim;Não;Não;
