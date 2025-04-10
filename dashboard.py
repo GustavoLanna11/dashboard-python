@@ -21,8 +21,20 @@ st.markdown("<h1 style='text-align: center;'>Inventário de Máquinas</h1>", uns
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # Definição da divisão de colunas para aplicação de gráficos
-col1 = st.columns(1)
-col2, col3, col4, col5 = st.columns(4)
+col3, col4, col6 = st.columns(3)
+st.markdown("<hr>", unsafe_allow_html=True)
+col2, col5, col1, col7 = st.columns(4)
+
+with col1:
+    # Contagem das ocorrências por "Tipo" (sem agrupar por "Proprietário")
+    df_tamanho_contagem = df['Tamanho'].value_counts().reset_index(name="Quantidade")
+    df_tamanho_contagem.columns = ['Tamanho', 'Quantidade']
+    
+    # Criando o gráfico com a contagem
+    fig = px.bar(df_tamanho_contagem, x="Tamanho", y="Quantidade", title="Tamanho de Memória Ram", color="Tamanho", text="Quantidade", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32', '#FF0000'])
+    fig.update_traces(textposition='outside')
+
+    st.plotly_chart(fig)
 
 with col2:
     # Contagem das ocorrências por "Tipo" (sem agrupar por "Proprietário")
@@ -30,8 +42,8 @@ with col2:
     df_tipo_contagem.columns = ['Tipo', 'Quantidade']
     
     # Criando o gráfico com a contagem
-    fig = px.bar(df_tipo_contagem, x="Tipo", y="Quantidade", title="Tipo de Máquinas", color="Tipo", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
-    fig.update_traces(text=df_tipo_contagem["Quantidade"], textposition='outside')
+    fig = px.bar(df_tipo_contagem, x="Tipo", y="Quantidade", title="Tipo de Máquinas", color="Tipo", text="Quantidade", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+    fig.update_traces(textposition='outside')
     
     st.plotly_chart(fig)
 
@@ -49,9 +61,10 @@ with col4:
     df_troca_contagem.columns = ['Troca de máquina', 'Quantidade']
     
     # Criando o gráfico com a contagem
-    fig3 = px.bar(df_troca_contagem, x="Troca de máquina", y="Quantidade", title="Máquinas para Troca",color="Troca de máquina", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
-    fig3.update_traces(text=df_troca_contagem["Quantidade"], textposition='outside')
+    fig3 = px.bar(df_troca_contagem, x="Troca de máquina", y="Quantidade", title="Máquinas para Troca",color="Troca de máquina", text="Quantidade", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+    fig3.update_traces(textposition='outside', textfont_size=12)
     st.plotly_chart(fig3)
+
 
 with col5:
     # Contagem das ocorrências para "Upgrade?"
@@ -62,6 +75,32 @@ with col5:
     fig4 = px.pie(df_upgrade_contagem, names="Upgrade?", values="Quantidade", title="Máquinas para Upgrade",color="Upgrade?", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
     # Exibindo o gráfico
     st.plotly_chart(fig4)
+
+with col6:
+    # Contagem das ocorrências para "Upgrade?"
+    df_antivirus_contagem = df['Antivírus'].value_counts().reset_index(name="Quantidade")
+    df_antivirus_contagem.columns = ['Antivírus', 'Quantidade']
+    
+    # Criando o gráfico de pizza
+    fig5 = px.pie(df_antivirus_contagem, names="Antivírus", values="Quantidade", title="Máquinas sem Antivírus",color="Antivírus", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+    # Exibindo o gráfico
+    st.plotly_chart(fig5)
+
+with col7:
+    # Contagem das ocorrências para "Tipo de armazenamento"
+    df_disco_contagem = df['Tipo de armazenamento'].value_counts().reset_index(name="Quantidade")
+    df_disco_contagem.columns = ['Tipo de armazenamento', 'Quantidade']
+    
+    # Criando o gráfico de torta
+    fig6 = px.pie(df_disco_contagem, 
+                  names="Tipo de armazenamento", 
+                  values="Quantidade", 
+                  title="Tipos de Disco", 
+                  color="Tipo de armazenamento", 
+                  color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32', '#FF0000'])
+
+    # Exibindo o gráfico
+    st.plotly_chart(fig6)
 
 # Filtro por departamento
 st.markdown("<hr><h1 style='text-align: center;'>Filtrar por Departamento</h1>", unsafe_allow_html=True)
