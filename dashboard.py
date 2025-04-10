@@ -110,7 +110,6 @@ if menu == "São Paulo":
     else:
         st.write(df)
 
-
 elif menu == "Rio de Janeiro":
     st.header("Bem-vindo à Dashboard do Rio de Janeiro")
 
@@ -127,7 +126,7 @@ elif menu == "Rio de Janeiro":
         df_tamanho_contagem = df['Tamanho'].value_counts().reset_index(name="Quantidade")
         df_tamanho_contagem.columns = ['Tamanho', 'Quantidade']
         
-        fig = px.bar(df_tamanho_contagem, x="Tamanho", y="Quantidade", title="Tamanho de Memória Ram", color="Tamanho", text="Quantidade", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32', '#FF0000'])
+        fig = px.bar(df_tamanho_contagem, x="Tamanho", y="Quantidade", title="Tamanho de Memória Ram", color="Tamanho", text="Quantidade", color_discrete_sequence=['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C'])
         fig.update_traces(textposition='outside')
 
         st.plotly_chart(fig)
@@ -137,7 +136,7 @@ elif menu == "Rio de Janeiro":
         df_tipo_contagem = df['Tipo'].value_counts().reset_index(name="Quantidade")
         df_tipo_contagem.columns = ['Tipo', 'Quantidade']
         
-        fig = px.bar(df_tipo_contagem, x="Tipo", y="Quantidade", title="Tipo de Máquinas", color="Tipo", text="Quantidade", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+        fig = px.bar(df_tipo_contagem, x="Tipo", y="Quantidade", title="Tipo de Máquinas", color="Tipo", text="Quantidade", color_discrete_sequence=['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C'])
         fig.update_traces(textposition='outside')
         
         st.plotly_chart(fig)
@@ -147,7 +146,7 @@ elif menu == "Rio de Janeiro":
         df_licenca_contagem = df['Licença Windows'].value_counts().reset_index(name="Quantidade")
         df_licenca_contagem.columns = ['Licença Windows', 'Quantidade']
         
-        fig2 = px.pie(df_licenca_contagem, names="Licença Windows", values="Quantidade", title="Máquinas sem licença",  color="Licença Windows", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+        fig2 = px.pie(df_licenca_contagem, names="Licença Windows", values="Quantidade", title="Máquinas sem licença",  color="Licença Windows", color_discrete_sequence=['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C'])
         st.plotly_chart(fig2)
 
     # Gráfico para troca de máquinas
@@ -155,7 +154,7 @@ elif menu == "Rio de Janeiro":
         df_troca_contagem = df['Troca de máquina'].value_counts().reset_index(name="Quantidade")
         df_troca_contagem.columns = ['Troca de máquina', 'Quantidade']
         
-        fig3 = px.bar(df_troca_contagem, x="Troca de máquina", y="Quantidade", title="Máquinas para Troca",color="Troca de máquina", text="Quantidade", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+        fig3 = px.bar(df_troca_contagem, x="Troca de máquina", y="Quantidade", title="Máquinas para Troca",color="Troca de máquina", text="Quantidade", color_discrete_sequence=['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C'])
         fig3.update_traces(textposition='outside', textfont_size=12)
         st.plotly_chart(fig3)
 
@@ -164,7 +163,7 @@ elif menu == "Rio de Janeiro":
         df_upgrade_contagem = df['Upgrade?'].value_counts().reset_index(name="Quantidade")
         df_upgrade_contagem.columns = ['Upgrade?', 'Quantidade']
         
-        fig4 = px.pie(df_upgrade_contagem, names="Upgrade?", values="Quantidade", title="Máquinas para Upgrade",color="Upgrade?", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+        fig4 = px.pie(df_upgrade_contagem, names="Upgrade?", values="Quantidade", title="Máquinas para Upgrade",color="Upgrade?", color_discrete_sequence=['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C'])
         st.plotly_chart(fig4)
 
     # Gráfico para antivírus
@@ -172,7 +171,7 @@ elif menu == "Rio de Janeiro":
         df_antivirus_contagem = df['Antivírus'].value_counts().reset_index(name="Quantidade")
         df_antivirus_contagem.columns = ['Antivírus', 'Quantidade']
         
-        fig5 = px.pie(df_antivirus_contagem, names="Antivírus", values="Quantidade", title="Máquinas sem Antivírus",color="Antivírus", color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32'])
+        fig5 = px.pie(df_antivirus_contagem, names="Antivírus", values="Quantidade", title="Máquinas sem Antivírus",color="Antivírus", color_discrete_sequence=['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C'])
         st.plotly_chart(fig5)
 
     # Gráfico para o tipo de disco rígido
@@ -185,7 +184,7 @@ elif menu == "Rio de Janeiro":
                     values="Quantidade", 
                     title="Tipos de Disco", 
                     color="Tipo de armazenamento", 
-                    color_discrete_sequence=['#FF6347', '#4682B4', '#32CD32', '#FF0000'])
+                    color_discrete_sequence=['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C'])
 
         st.plotly_chart(fig6)
 
