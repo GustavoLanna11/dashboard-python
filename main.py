@@ -1,19 +1,24 @@
+import time
 import streamlit as st
 from src.loader import carregar_dados
 from src.graph import grafico_barras, grafico_pizza
 from src.layout import titulo_principal, filtro_departamento
+
 
 titulo_principal()
 menu = st.sidebar.selectbox("Selecione uma região", ["São Paulo", "Rio de Janeiro"])
 
 if menu == "São Paulo":
     st.header("Dashboard São Paulo")
-    df = carregar_dados("data/inventario_maquinas_exemplo.csv")
+    with st.spinner("🔄 Carregando dados de São Paulo..."):
+        df = carregar_dados("data/inventario_maquinas_exemplo.csv")
+        time.sleep(1)  # Simula o tempo de carregamento, pode ser removido
     cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
 
 elif menu == "Rio de Janeiro":
-    st.header("Dashboard Rio de Janeiro")
-    df = carregar_dados("data/inventario_maquinas_exemplo2.csv")
+    with st.spinner("🔄 Carregando dados do Rio de Janeiro..."):
+        df = carregar_dados("data/inventario_maquinas_exemplo2.csv")
+        time.sleep(1)  # Simula o tempo de carregamento, pode ser removido
     cores = ['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C']
 
 col3, col4, col6 = st.columns(3)
