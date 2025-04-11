@@ -1,7 +1,7 @@
 import streamlit as st
 
 def titulo_principal():
-    st.set_page_config(layout="wide")
+    st.set_page_config(layout="wide", page_title="Dashboard de Máquinas", page_icon="🖥️", initial_sidebar_state="expanded")
     st.markdown("<h1 style='text-align: center;'>Inventário de Máquinas</h1>", unsafe_allow_html=True)
     st.markdown("<hr>", unsafe_allow_html=True)
 
