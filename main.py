@@ -2,7 +2,7 @@ import time
 import streamlit as st
 from src.loader import carregar_dados
 from src.graph import grafico_barras, grafico_pizza
-from src.layout import titulo_principal, filtro_departamento
+from src.layout import titulo_principal, filtro_departamento, mostrar_kpis  
 
 
 titulo_principal()
@@ -14,12 +14,14 @@ if menu == "São Paulo":
         df = carregar_dados("data/inventario_maquinas_exemplo.csv")
         time.sleep(1)  # Simula o tempo de carregamento, pode ser removido
     cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
+    mostrar_kpis(df)
 
 elif menu == "Rio de Janeiro":
     with st.spinner("🔄 Carregando dados do Rio de Janeiro..."):
         df = carregar_dados("data/inventario_maquinas_exemplo2.csv")
         time.sleep(1)  # Simula o tempo de carregamento, pode ser removido
     cores = ['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C']
+    mostrar_kpis(df)
 
 col3, col4, col6 = st.columns(3)
 with col6: grafico_pizza(df, 'Antivírus', "Antivírus", cores)
