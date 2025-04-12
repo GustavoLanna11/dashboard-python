@@ -10,16 +10,13 @@ menu = st.sidebar.selectbox("Selecione uma região", ["São Paulo", "Rio de Jane
 
 if menu == "São Paulo":
     st.header("Dashboard São Paulo")
-    with st.spinner("🔄 Carregando dados de São Paulo..."):
-        df = carregar_dados("data/inventario_maquinas_exemplo.csv")
-        time.sleep(1)  # Simula o tempo de carregamento, pode ser removido
+    df = carregar_dados("data/inventario_maquinas_exemplo.csv")
     cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
     mostrar_kpis(df)
 
 elif menu == "Rio de Janeiro":
-    with st.spinner("🔄 Carregando dados do Rio de Janeiro..."):
-        df = carregar_dados("data/inventario_maquinas_exemplo2.csv")
-        time.sleep(1)  # Simula o tempo de carregamento, pode ser removido
+    st.header("Dashboard Rio de Janeiro")
+    df = carregar_dados("data/inventario_maquinas_exemplo2.csv")
     cores = ['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C']
     mostrar_kpis(df)
 
