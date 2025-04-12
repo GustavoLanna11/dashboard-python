@@ -1,5 +1,7 @@
 import streamlit as st
 
+import streamlit as st
+
 def mostrar_kpis(df):
     total = len(df)
 
@@ -15,9 +17,9 @@ def mostrar_kpis(df):
     with col1:
         st.markdown(
             f"""
-            <div style="padding:20px; border-radius:10px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h4 style="margin-bottom:5px;">💻 Total de Máquinas</h4>
-                <h2 style="color:#333;">{total}</h2>
+            <div style="padding:20px; border-radius:10px; text-align:center; background-color:#333; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);">
+                <h4 style="margin-bottom:5px; color:white;">💻 Total de Máquinas</h4>
+                <h2 style="color:white;">{total}</h2>
             </div>
             """,
             unsafe_allow_html=True
@@ -26,9 +28,9 @@ def mostrar_kpis(df):
     with col2:
         st.markdown(
             f"""
-            <div style=" padding:20px; border-radius:10px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h4 style="margin-bottom:5px;">🛡️ Com Antivírus</h4>
-                <h2 style="color:#333;">{com_antivirus}</h2>
+            <div style="padding:20px; border-radius:10px; text-align:center; background-color:#333; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);">
+                <h4 style="margin-bottom:5px; color:white;">🛡️ Com Antivírus</h4>
+                <h2 style="color:white;">{com_antivirus}</h2>
             </div>
             """,
             unsafe_allow_html=True
@@ -37,15 +39,14 @@ def mostrar_kpis(df):
     with col3:
         st.markdown(
             f"""
-            <div style="padding:20px; border-radius:10px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h4 style="margin-bottom:5px;">🪟 Com Licença Windows</h4>
-                <h2 style="color:#333;">{com_licenca}</h2>
+            <div style="padding:20px; border-radius:10px; text-align:center; background-color:#333; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);">
+                <h4 style="margin-bottom:5px; color:white;">🪟 Com Licença Windows</h4>
+                <h2 style="color:white;">{com_licenca}</h2>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    # ➕ Divisor abaixo dos cards
     st.markdown("<hr>", unsafe_allow_html=True)
 
 def titulo_principal():
