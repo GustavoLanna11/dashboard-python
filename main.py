@@ -31,4 +31,11 @@ with col2: grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
 with col5: grafico_pizza(df, 'Upgrade?', "Upgrade?", cores)
 with col7: grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
 
-filtro_departamento(df)
+df_filtrado = filtro_departamento(df)
+csv = df_filtrado.to_csv(index=False, sep=";", encoding="latin1")
+st.download_button(
+    label="📥 Baixar dados filtrados (CSV)",
+    data=csv,
+    file_name="dados_filtrados.csv",
+    mime="text/csv"
+)
