@@ -1,11 +1,8 @@
 import streamlit as st
 
-import streamlit as st
-
 def mostrar_kpis(df):
     total = len(df)
 
-    # Padroniza os valores pra evitar erro com maiúsculas, espaços etc.
     df["Antivírus"] = df["Antivírus"].astype(str).str.strip().str.capitalize()
     df["Licença Windows"] = df["Licença Windows"].astype(str).str.strip().str.capitalize()
 
@@ -58,7 +55,11 @@ def filtro_departamento(df):
     st.markdown("<hr><h1 style='text-align: center;'>Filtrar por Departamento</h1>", unsafe_allow_html=True)
     departamentos = df["Departamento"].unique()
     filtro = st.selectbox("", ["Todos"] + list(departamentos))
+    
     if filtro != "Todos":
-        st.write(df[df["Departamento"] == filtro])
+        df_filtrado = df[df["Departamento"] == filtro]
     else:
-        st.write(df)
+        df_filtrado = df
+
+    st.write(df_filtrado)
+    return df_filtrado
