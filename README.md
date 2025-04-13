@@ -12,6 +12,7 @@ Após ter o repositório clonado e abrir em seu editor de código, abra um novo 
 <b>- `pip install pandas` (para manipulação de dados)<br></b>
 <b>- `pip instal streamlit` (para construção dos dashboards)<br></b>
 <b>- `pip install plotly` (para construção dos gráficos)<br></b>
+<b>- `pip install kaleido` (para exportar gráficos como PNG)<br><b>
 
 <h2>Executando</h2>
 Para executar, no terminal, use:
