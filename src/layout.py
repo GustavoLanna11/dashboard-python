@@ -54,7 +54,7 @@ def titulo_principal():
 def filtro_departamento(df):
     st.markdown("<hr><h1 style='text-align: center;'>Filtrar por Departamento</h1>", unsafe_allow_html=True)
     departamentos = df["Departamento"].unique()
-    filtro = st.selectbox("", ["Todos"] + list(departamentos))
+    filtro = st.selectbox("Departamento", ["Todos"] + list(departamentos))
     
     if filtro != "Todos":
         df_filtrado = df[df["Departamento"] == filtro]
