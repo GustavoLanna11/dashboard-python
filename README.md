@@ -17,7 +17,13 @@ Após ter o repositório clonado e abrir em seu editor de código, abra um novo 
 <h2>Executando</h2>
 Para executar, no terminal, use:
 
-`python -m streamlit run dashboard.py` 
+`python -m streamlit run main.py` 
 
 Por fim o dashboard estará rodando no localhost, e as conexões aparecerão no terminal!
 
+<hr>
+O APP também está hospedado no Stremlit Cloud, logo, qualquer um pode acessar e testar a partir da url abaixo: <br><br>
+https://dashboard-python-gusta.streamlit.app/
+
+<hr>
+<h2>Gustavo Lanna</h2>
