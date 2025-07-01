@@ -1,3 +1,4 @@
-streamlitpandas
+streamlit
+pandas
 plotly
 kaleido
