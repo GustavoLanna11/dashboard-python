@@ -31,11 +31,14 @@ elif menu == "Rio de Janeiro":
 
 elif menu == "Planilha Personalizada":
     st.header("📤 Dashboard Personalizado")
-    uploaded_file = st.file_uploader("Envie sua planilha (.csv)", type=["csv"])
+    uploaded_file = st.file_uploader("Envie sua planilha (.csv ou .xlsx)", type=["csv", "xlsx"])
     
     if uploaded_file:
         try:
-            df_temp = pd.read_csv(uploaded_file, sep=";", encoding="latin1")
+            if uploaded_file.name.endswith('.csv'):
+                df_temp = pd.read_csv(uploaded_file, sep=";", encoding="latin1")
+            else:  # assume .xlsx
+                df_temp = pd.read_excel(uploaded_file)
 
             # Verifica colunas obrigatórias
             colunas_faltando = [col for col in colunas_esperadas if col not in df_temp.columns]
@@ -48,7 +51,7 @@ elif menu == "Planilha Personalizada":
         except Exception as e:
             st.error(f"❌ Erro ao carregar a planilha: {e}")
     else:
-        with st.expander("📋 Ver colunas esperadas para o CSV"):
+        with st.expander("📋 Ver colunas esperadas para o arquivo"):
             st.markdown("Sua planilha precisa conter **exatamente essas colunas** para funcionar corretamente:")
             st.markdown("- " + "\n- ".join(colunas_esperadas))
 
