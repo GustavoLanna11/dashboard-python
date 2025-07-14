@@ -1,8 +1,10 @@
 import streamlit as st
+import pandas as pd
+import requests
+
 from src.loader import carregar_dados
 from src.graph import grafico_barras, grafico_pizza
 from src.layout import titulo_principal, filtro_departamento, mostrar_kpis
-import pandas as pd
 
 # ✅ Lista completa de colunas esperadas
 colunas_esperadas = [
@@ -14,12 +16,30 @@ colunas_esperadas = [
     "Está no AD?", "Observações"
 ]
 
+# ✅ Carrega os dados da API Flask
+def carregar_dados_api(url="http://192.168.0.138:5000/dados"):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        dados_json = response.json()
+        df = pd.DataFrame(dados_json)
+        st.success("✅ Dados carregados automaticamente da API!")
+        return df
+    except Exception as e:
+        st.error(f"❌ Erro ao carregar dados da API: {e}")
+        return None
+
+# 🌐 Título e Menu
 titulo_principal()
-menu = st.sidebar.selectbox("Selecione uma opção", ["São Paulo", "Rio de Janeiro", "Planilha Personalizada"])
+menu = st.sidebar.selectbox(
+    "Selecione uma opção",
+    ["São Paulo", "Rio de Janeiro", "Planilha Personalizada", "Dados pela API"]
+)
 
 df = None
 cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
 
+# 🔄 Opções do menu
 if menu == "São Paulo":
     st.header("Dashboard São Paulo")
     df = carregar_dados("data/inventario_maquinas_exemplo.csv")
@@ -32,22 +52,21 @@ elif menu == "Rio de Janeiro":
 elif menu == "Planilha Personalizada":
     st.header("📤 Dashboard Personalizado")
     uploaded_file = st.file_uploader("Envie sua planilha (.csv ou .xlsx)", type=["csv", "xlsx"])
-    
+
     if uploaded_file:
         try:
             if uploaded_file.name.endswith('.csv'):
                 df_temp = pd.read_csv(uploaded_file, sep=";", encoding="latin1")
-            else:  # assume .xlsx
+            else:
                 df_temp = pd.read_excel(uploaded_file)
 
-            # Verifica colunas obrigatórias
             colunas_faltando = [col for col in colunas_esperadas if col not in df_temp.columns]
             if colunas_faltando:
                 st.warning("⚠️ A planilha está faltando as seguintes colunas:")
                 st.write("- " + "\n- ".join(colunas_faltando))
             else:
                 st.success("✅ Planilha carregada com sucesso!")
-                df = df_temp  # Só atribui à variável principal se tudo estiver certo
+                df = df_temp
         except Exception as e:
             st.error(f"❌ Erro ao carregar a planilha: {e}")
     else:
@@ -55,8 +74,11 @@ elif menu == "Planilha Personalizada":
             st.markdown("Sua planilha precisa conter **exatamente essas colunas** para funcionar corretamente:")
             st.markdown("- " + "\n- ".join(colunas_esperadas))
 
+elif menu == "Dados pela API":
+    st.header("📡 Dashboard Automático (dados da API)")
+    df = carregar_dados_api()
 
-# Se houver DataFrame carregado, exibe os KPIs e gráficos
+# 📊 Exibe os KPIs e gráficos se houver DataFrame
 if df is not None:
     mostrar_kpis(df)
 
