@@ -79,28 +79,67 @@ elif menu == "Dados pela API":
     df = carregar_dados_api()
 
 # 📊 Exibe os KPIs e gráficos se houver DataFrame
+# 📊 Exibe os KPIs e gráficos se houver DataFrame
 if df is not None:
     mostrar_kpis(df)
 
     if menu == "Dados pela API":
-        # 👉 Gráficos reduzidos (sem 'Troca de máquina' e 'Upgrade?')
-        col3, col4 = st.columns(2)
-        with col3: grafico_pizza(df, 'Antivírus', "Antivírus", cores)
-        with col4: grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
+        # Para dados da API, só 2 gráficos na primeira linha
+        col1, col2 = st.columns(2)
 
-        col2, col1 = st.columns(2)
-        with col1: grafico_barras(df, 'Tamanho', "Memória RAM", cores)
-        with col2: grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
+        with col1:
+            grafico_pizza(df, 'Antivírus', "Antivírus", cores)
+
+        with col2:
+            grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
+
+        # Segunda linha: 2 gráficos
+        col3, col4 = st.columns(2)
+
+        with col3:
+            grafico_barras(df, 'Tamanho', "Memória RAM", cores)
+
+        with col4:
+            grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
+
+        # Terceira linha: 1 gráfico
+        grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
 
     else:
-        # 👈 Versão completa com todos os gráficos
+        # Layout original com 3 colunas na primeira linha
         col3, col4, col6 = st.columns(3)
-        with col6: grafico_pizza(df, 'Antivírus', "Antivírus", cores)
-        with col3: grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
-        with col4: grafico_barras(df, 'Troca de máquina', "Troca de Máquina", cores)
 
+        with col6:
+            grafico_pizza(df, 'Antivírus', "Antivírus", cores)
+
+        with col3:
+            grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
+
+        with col4:
+            grafico_barras(df, 'Troca de máquina', "Troca de Máquina", cores)
+
+        # Segunda linha com 4 colunas
         col2, col5, col1, col7 = st.columns(4)
-        with col1: grafico_barras(df, 'Tamanho', "Memória RAM", cores)
-        with col2: grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
-        with col5: grafico_pizza(df, 'Upgrade?', "Upgrade?", cores)
-        with col7: grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
+
+        with col1:
+            grafico_barras(df, 'Tamanho', "Memória RAM", cores)
+
+        with col2:
+            grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
+
+        with col5:
+            grafico_pizza(df, 'Upgrade?', "Upgrade?", cores)
+
+        with col7:
+            grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
+
+    # Filtro por departamento aparece sempre
+    df_filtrado = filtro_departamento(df)
+
+    csv = df_filtrado.to_csv(index=False, sep=";", encoding="latin1")
+    st.download_button(
+        label="📥 Baixar dados filtrados (CSV)",
+        data=csv,
+        file_name="dados_filtrados.csv",
+        mime="text/csv"
+    )
