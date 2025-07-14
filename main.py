@@ -82,22 +82,25 @@ elif menu == "Dados pela API":
 if df is not None:
     mostrar_kpis(df)
 
-    col3, col4, col6 = st.columns(3)
-    with col6: grafico_pizza(df, 'Antivírus', "Antivírus", cores)
-    with col3: grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
-    with col4: grafico_barras(df, 'Troca de máquina', "Troca de Máquina", cores)
+    if menu == "Dados pela API":
+        # 👉 Gráficos reduzidos (sem 'Troca de máquina' e 'Upgrade?')
+        col3, col4 = st.columns(2)
+        with col3: grafico_pizza(df, 'Antivírus', "Antivírus", cores)
+        with col4: grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
 
-    col2, col5, col1, col7 = st.columns(4)
-    with col1: grafico_barras(df, 'Tamanho', "Memória RAM", cores)
-    with col2: grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
-    with col5: grafico_pizza(df, 'Upgrade?', "Upgrade?", cores)
-    with col7: grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
+        col2, col1 = st.columns(2)
+        with col1: grafico_barras(df, 'Tamanho', "Memória RAM", cores)
+        with col2: grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
 
-    df_filtrado = filtro_departamento(df)
-    csv = df_filtrado.to_csv(index=False, sep=";", encoding="latin1")
-    st.download_button(
-        label="📥 Baixar dados filtrados (CSV)",
-        data=csv,
-        file_name="dados_filtrados.csv",
-        mime="text/csv"
-    )
+    else:
+        # 👈 Versão completa com todos os gráficos
+        col3, col4, col6 = st.columns(3)
+        with col6: grafico_pizza(df, 'Antivírus', "Antivírus", cores)
+        with col3: grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
+        with col4: grafico_barras(df, 'Troca de máquina', "Troca de Máquina", cores)
+
+        col2, col5, col1, col7 = st.columns(4)
+        with col1: grafico_barras(df, 'Tamanho', "Memória RAM", cores)
+        with col2: grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
+        with col5: grafico_pizza(df, 'Upgrade?', "Upgrade?", cores)
+        with col7: grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
