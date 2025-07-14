@@ -10,7 +10,7 @@ Copie a url desse repositório, e o clone em sua máquina usando
 Após ter o repositório clonado e abrir em seu editor de código, abra um novo terminal e instale as bibliotecas:<br>
 
 <b>- `pip install pandas` (para manipulação de dados)<br></b>
-<b>- `pip instal streamlit` (para construção dos dashboards)<br></b>
+<b>- `pip install streamlit` (para construção dos dashboards)<br></b>
 <b>- `pip install plotly` (para construção dos gráficos)<br></b>
 <b>- `pip install kaleido` (para exportar gráficos como PNG)<br><b>
 
