@@ -16,10 +16,13 @@ colunas_esperadas = [
     "Está no AD?", "Observações"
 ]
 
-# ✅ Carrega os dados da API Flask
-def carregar_dados_api(url="http://192.168.0.138:5000/dados"):
+# 🌐 URL da sua API online
+API_URL = "https://api-inventario-maquinas.onrender.com/dados"
+
+# ✅ Carrega os dados da API
+def carregar_dados_api():
     try:
-        response = requests.get(url)
+        response = requests.get(API_URL, timeout=30)
         response.raise_for_status()
         dados_json = response.json()
         df = pd.DataFrame(dados_json)
@@ -31,6 +34,7 @@ def carregar_dados_api(url="http://192.168.0.138:5000/dados"):
 
 # 🌐 Título e Menu
 titulo_principal()
+
 menu = st.sidebar.selectbox(
     "Selecione uma opção",
     ["São Paulo", "Rio de Janeiro", "Planilha Personalizada", "Dados pela API"]
@@ -61,30 +65,37 @@ elif menu == "Planilha Personalizada":
                 df_temp = pd.read_excel(uploaded_file)
 
             colunas_faltando = [col for col in colunas_esperadas if col not in df_temp.columns]
+
             if colunas_faltando:
                 st.warning("⚠️ A planilha está faltando as seguintes colunas:")
                 st.write("- " + "\n- ".join(colunas_faltando))
             else:
                 st.success("✅ Planilha carregada com sucesso!")
                 df = df_temp
+
         except Exception as e:
             st.error(f"❌ Erro ao carregar a planilha: {e}")
+
     else:
         with st.expander("📋 Ver colunas esperadas para o arquivo"):
-            st.markdown("Sua planilha precisa conter **exatamente essas colunas** para funcionar corretamente:")
+            st.markdown("Sua planilha precisa conter **exatamente essas colunas**:")
             st.markdown("- " + "\n- ".join(colunas_esperadas))
 
 elif menu == "Dados pela API":
     st.header("📡 Dashboard Automático (dados da API)")
+
+    if st.button("🔄 Atualizar dados"):
+        st.rerun()
+
     df = carregar_dados_api()
 
-# 📊 Exibe os KPIs e gráficos se houver DataFrame
-# 📊 Exibe os KPIs e gráficos se houver DataFrame
+# 📊 Exibe os KPIs e gráficos
 if df is not None:
+
     mostrar_kpis(df)
 
     if menu == "Dados pela API":
-        # Para dados da API, só 2 gráficos na primeira linha
+
         col1, col2 = st.columns(2)
 
         with col1:
@@ -93,7 +104,6 @@ if df is not None:
         with col2:
             grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
 
-        # Segunda linha: 2 gráficos
         col3, col4 = st.columns(2)
 
         with col3:
@@ -102,11 +112,10 @@ if df is not None:
         with col4:
             grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
 
-        # Terceira linha: 1 gráfico
         grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
 
     else:
-        # Layout original com 3 colunas na primeira linha
+
         col3, col4, col6 = st.columns(3)
 
         with col6:
@@ -118,7 +127,6 @@ if df is not None:
         with col4:
             grafico_barras(df, 'Troca de máquina', "Troca de Máquina", cores)
 
-        # Segunda linha com 4 colunas
         col2, col5, col1, col7 = st.columns(4)
 
         with col1:
@@ -133,10 +141,11 @@ if df is not None:
         with col7:
             grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
 
-    # Filtro por departamento aparece sempre
+    # 📊 Filtro por departamento
     df_filtrado = filtro_departamento(df)
 
     csv = df_filtrado.to_csv(index=False, sep=";", encoding="latin1")
+
     st.download_button(
         label="📥 Baixar dados filtrados (CSV)",
         data=csv,
