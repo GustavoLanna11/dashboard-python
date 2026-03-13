@@ -17,7 +17,7 @@ colunas_esperadas = [
 ]
 
 # 🌐 URL da API online
-API_URL = "https://api-inventario-maquinas.onrender.com/dados"
+API_URL = "https://api-inventario-wudx.onrender.com/dados"
 
 # ✅ Carrega os dados da API
 def carregar_dados_api():
