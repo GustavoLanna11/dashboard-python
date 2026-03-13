@@ -16,7 +16,7 @@ colunas_esperadas = [
     "Está no AD?", "Observações"
 ]
 
-# 🌐 URL da sua API online
+# 🌐 URL da API online
 API_URL = "https://api-inventario-maquinas.onrender.com/dados"
 
 # ✅ Carrega os dados da API
@@ -26,11 +26,18 @@ def carregar_dados_api():
         response.raise_for_status()
         dados_json = response.json()
         df = pd.DataFrame(dados_json)
+
+        # Garantir que todas as colunas existam
+        for col in colunas_esperadas:
+            if col not in df.columns:
+                df[col] = None
+
+        df = df[colunas_esperadas]  # Mantém a ordem das colunas
         st.success("✅ Dados carregados automaticamente da API!")
         return df
     except Exception as e:
         st.error(f"❌ Erro ao carregar dados da API: {e}")
-        return None
+        return pd.DataFrame(columns=colunas_esperadas)
 
 # 🌐 Título e Menu
 titulo_principal()
@@ -40,7 +47,7 @@ menu = st.sidebar.selectbox(
     ["São Paulo", "Rio de Janeiro", "Planilha Personalizada", "Dados pela API"]
 )
 
-df = None
+df = pd.DataFrame()
 cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
 
 # 🔄 Opções do menu
@@ -69,9 +76,13 @@ elif menu == "Planilha Personalizada":
             if colunas_faltando:
                 st.warning("⚠️ A planilha está faltando as seguintes colunas:")
                 st.write("- " + "\n- ".join(colunas_faltando))
+                # Adiciona colunas faltando vazias para manter compatibilidade
+                for col in colunas_faltando:
+                    df_temp[col] = None
             else:
                 st.success("✅ Planilha carregada com sucesso!")
-                df = df_temp
+
+            df = df_temp[colunas_esperadas]
 
         except Exception as e:
             st.error(f"❌ Erro ao carregar a planilha: {e}")
@@ -85,59 +96,47 @@ elif menu == "Dados pela API":
     st.header("📡 Dashboard Automático (dados da API)")
 
     if st.button("🔄 Atualizar dados"):
-        st.rerun()
+        st.experimental_rerun()
 
     df = carregar_dados_api()
 
 # 📊 Exibe os KPIs e gráficos
-if df is not None:
+if not df.empty:
 
     mostrar_kpis(df)
 
     if menu == "Dados pela API":
 
         col1, col2 = st.columns(2)
-
         with col1:
             grafico_pizza(df, 'Antivírus', "Antivírus", cores)
-
         with col2:
             grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
 
         col3, col4 = st.columns(2)
-
         with col3:
             grafico_barras(df, 'Tamanho', "Memória RAM", cores)
-
         with col4:
             grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
 
         grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
 
     else:
-
         col3, col4, col6 = st.columns(3)
-
         with col6:
             grafico_pizza(df, 'Antivírus', "Antivírus", cores)
-
         with col3:
             grafico_pizza(df, 'Licença Windows', "Licença Windows", cores)
-
         with col4:
             grafico_barras(df, 'Troca de máquina', "Troca de Máquina", cores)
 
         col2, col5, col1, col7 = st.columns(4)
-
         with col1:
             grafico_barras(df, 'Tamanho', "Memória RAM", cores)
-
         with col2:
             grafico_barras(df, 'Tipo', "Tipo de Máquina", cores)
-
         with col5:
             grafico_pizza(df, 'Upgrade?', "Upgrade?", cores)
-
         with col7:
             grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
 
