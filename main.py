@@ -2,9 +2,31 @@ import streamlit as st
 import pandas as pd
 import requests
 
+from src.auth import login
 from src.loader import carregar_dados
 from src.graph import grafico_barras, grafico_pizza
 from src.layout import titulo_principal, filtro_departamento, mostrar_kpis
+
+# ==========================
+# 🔐 CONTROLE DE LOGIN
+# ==========================
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    login()
+    st.stop()
+
+# ==========================
+# 🚪 LOGOUT
+# ==========================
+if st.sidebar.button("🚪 Sair"):
+    st.session_state.logged_in = False
+    st.rerun()
+
+# ==========================
+# 📊 DASHBOARD
+# ==========================
 
 # ✅ Lista completa de colunas esperadas
 colunas_esperadas = [
@@ -16,10 +38,8 @@ colunas_esperadas = [
     "Está no AD?", "Observações"
 ]
 
-# 🌐 URL da API online
 API_URL = "https://api-inventario-wudx.onrender.com/dados"
 
-# ✅ Carrega os dados da API
 def carregar_dados_api():
     try:
         response = requests.get(API_URL, timeout=30)
@@ -27,19 +47,18 @@ def carregar_dados_api():
         dados_json = response.json()
         df = pd.DataFrame(dados_json)
 
-        # Garantir que todas as colunas existam
         for col in colunas_esperadas:
             if col not in df.columns:
                 df[col] = None
 
-        df = df[colunas_esperadas]  # Mantém a ordem das colunas
+        df = df[colunas_esperadas]
         st.success("✅ Dados carregados automaticamente da API!")
         return df
     except Exception as e:
         st.error(f"❌ Erro ao carregar dados da API: {e}")
         return pd.DataFrame(columns=colunas_esperadas)
 
-# 🌐 Título e Menu
+# 🌐 Layout
 titulo_principal()
 
 menu = st.sidebar.selectbox(
@@ -50,7 +69,7 @@ menu = st.sidebar.selectbox(
 df = pd.DataFrame()
 cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
 
-# 🔄 Opções do menu
+# 🔄 Menu
 if menu == "São Paulo":
     st.header("Dashboard São Paulo")
     df = carregar_dados("data/inventario_maquinas_exemplo.csv")
@@ -76,7 +95,6 @@ elif menu == "Planilha Personalizada":
             if colunas_faltando:
                 st.warning("⚠️ A planilha está faltando as seguintes colunas:")
                 st.write("- " + "\n- ".join(colunas_faltando))
-                # Adiciona colunas faltando vazias para manter compatibilidade
                 for col in colunas_faltando:
                     df_temp[col] = None
             else:
@@ -96,11 +114,11 @@ elif menu == "Dados pela API":
     st.header("📡 Dashboard Automático (dados da API)")
 
     if st.button("🔄 Atualizar dados"):
-        st.experimental_rerun()
+        st.rerun()
 
     df = carregar_dados_api()
 
-# 📊 Exibe os KPIs e gráficos
+# 📊 Gráficos
 if not df.empty:
 
     mostrar_kpis(df)
@@ -140,7 +158,6 @@ if not df.empty:
         with col7:
             grafico_pizza(df, 'Tipo de armazenamento', "Disco Rígido", cores)
 
-    # 📊 Filtro por departamento
     df_filtrado = filtro_departamento(df)
 
     csv = df_filtrado.to_csv(index=False, sep=";", encoding="latin1")
