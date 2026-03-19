@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import os
 
 from src.auth import login
 from src.loader import carregar_dados
@@ -25,10 +26,16 @@ if st.sidebar.button("🚪 Sair"):
     st.rerun()
 
 # ==========================
+# 🔐 CREDENCIAIS API (ENV)
+# ==========================
+API_URL = "https://api-inventario-wudx.onrender.com/dados"
+API_USER = os.environ.get("API_USER")
+API_PASSWORD = os.environ.get("API_PASSWORD")
+
+# ==========================
 # 📊 DASHBOARD
 # ==========================
 
-# ✅ Lista completa de colunas esperadas
 colunas_esperadas = [
     "Nome da máquina", "Proprietário", "Etiqueta", "Cidade", "Departamento",
     "Unidade Residente", "Marca", "Número de Série", "Tipo", "Modelo",
@@ -38,11 +45,18 @@ colunas_esperadas = [
     "Está no AD?", "Observações"
 ]
 
-API_URL = "https://api-inventario-wudx.onrender.com/dados"
-
 def carregar_dados_api():
     try:
-        response = requests.get(API_URL, timeout=30)
+        response = requests.get(
+            API_URL,
+            auth=(API_USER, API_PASSWORD),
+            timeout=30
+        )
+
+        if response.status_code == 401:
+            st.error("🔒 Não autorizado na API. Verifique usuário/senha.")
+            return pd.DataFrame(columns=colunas_esperadas)
+
         response.raise_for_status()
         dados_json = response.json()
         df = pd.DataFrame(dados_json)
@@ -54,6 +68,7 @@ def carregar_dados_api():
         df = df[colunas_esperadas]
         st.success("✅ Dados carregados automaticamente da API!")
         return df
+
     except Exception as e:
         st.error(f"❌ Erro ao carregar dados da API: {e}")
         return pd.DataFrame(columns=colunas_esperadas)
@@ -69,7 +84,10 @@ menu = st.sidebar.selectbox(
 df = pd.DataFrame()
 cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
 
-# 🔄 Menu
+# ==========================
+# 🔄 MENU
+# ==========================
+
 if menu == "São Paulo":
     st.header("Dashboard São Paulo")
     df = carregar_dados("data/inventario_maquinas_exemplo.csv")
@@ -118,7 +136,10 @@ elif menu == "Dados pela API":
 
     df = carregar_dados_api()
 
-# 📊 Gráficos
+# ==========================
+# 📊 GRÁFICOS
+# ==========================
+
 if not df.empty:
 
     mostrar_kpis(df)
