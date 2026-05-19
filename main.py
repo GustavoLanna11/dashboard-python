@@ -199,41 +199,43 @@ if not df.empty:
         if col not in colunas_editaveis
     ]
 
-    st.subheader("✏️ Editar Informações")
+    # 🔽 Dropdown recolhível
+    with st.expander("✏️ Editar Informações", expanded=False):
 
-    df_editado = st.data_editor(
-        df_filtrado,
-        use_container_width=True,
-        disabled=colunas_bloqueadas,
-        num_rows="fixed",
-        hide_index=True
-    )
+        df_editado = st.data_editor(
+            df_filtrado,
+            use_container_width=True,
+            disabled=colunas_bloqueadas,
+            num_rows="fixed",
+            hide_index=True
+        )
 
-    # ==========================
-    # 💾 SALVAR ALTERAÇÕES
-    # ==========================
+        # ==========================
+        # 💾 SALVAR ALTERAÇÕES
+        # ==========================
 
-    if st.button("💾 Salvar Alterações"):
-        progresso = st.progress(0)
-        total = len(df_editado)
-
-        for i, (_, row) in enumerate(df_editado.iterrows()):
-            try:
-                response = requests.put(
-                    "https://api-inventario-wudx.onrender.com/editar_maquina",
-                    auth=(API_USER, API_PASSWORD),
-                    json=row.to_dict(),
-                    timeout=30
-                )
-                if response.status_code != 200:
-                    st.warning(
-                        f"⚠️ Erro ao atualizar {row['Nome da máquina']}"
+        if st.button("💾 Salvar Alterações"):
+            progresso = st.progress(0)
+            total = len(df_editado)
+            for i, (_, row) in enumerate(df_editado.iterrows()):
+                try:
+                    response = requests.put(
+                        "https://api-inventario-wudx.onrender.com/editar_maquina",
+                        auth=(API_USER, API_PASSWORD),
+                        json=row.to_dict(),
+                        timeout=30
                     )
-            except Exception as e:
-                st.error(f"❌ Erro: {e}")
-            progresso.progress((i + 1) / total)
-        st.success("✅ Alterações salvas com sucesso!")
-
+                    if response.status_code != 200:
+                        st.warning(
+                            f"⚠️ Erro ao atualizar {row['Nome da máquina']}"
+                        )
+                except Exception as e:
+                    st.error(f"❌ Erro: {e}")
+                progresso.progress((i + 1) / total)
+            progresso.empty()
+            st.success("✅ Alterações salvas com sucesso!")
+            # 🔄 Recarrega os dados automaticamente
+            st.rerun()
 
     csv = df_filtrado.to_csv(index=False, sep=";", encoding="latin1")
 
