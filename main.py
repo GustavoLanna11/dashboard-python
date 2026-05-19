@@ -82,7 +82,7 @@ menu = st.sidebar.selectbox(
 )
 
 df = pd.DataFrame()
-cores = ["#058F61", "#9b1c1c", '#FEBE00', '#006A89']
+cores = ["#026141", "#9b1c1c", '#FEBE00', '#006A89']
 
 # ==========================
 # 🔄 MENU
