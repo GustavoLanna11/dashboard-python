@@ -182,6 +182,59 @@ if not df.empty:
 
     df_filtrado = filtro_departamento(df)
 
+    # ==========================
+    # ✏️ CAMPOS EDITÁVEIS
+    # ==========================
+
+    colunas_editaveis = [
+        "Etiqueta",
+        "Cidade",
+        "Departamento",
+        "Unidade Residente",
+        "Observações"
+    ]
+
+    colunas_bloqueadas = [
+        col for col in df_filtrado.columns
+        if col not in colunas_editaveis
+    ]
+
+    st.subheader("✏️ Editar Informações")
+
+    df_editado = st.data_editor(
+        df_filtrado,
+        use_container_width=True,
+        disabled=colunas_bloqueadas,
+        num_rows="fixed",
+        hide_index=True
+    )
+
+    # ==========================
+    # 💾 SALVAR ALTERAÇÕES
+    # ==========================
+
+    if st.button("💾 Salvar Alterações"):
+        progresso = st.progress(0)
+        total = len(df_editado)
+
+        for i, (_, row) in enumerate(df_editado.iterrows()):
+            try:
+                response = requests.put(
+                    "https://api-inventario-wudx.onrender.com/editar_maquina",
+                    auth=(API_USER, API_PASSWORD),
+                    json=row.to_dict(),
+                    timeout=30
+                )
+                if response.status_code != 200:
+                    st.warning(
+                        f"⚠️ Erro ao atualizar {row['Nome da máquina']}"
+                    )
+            except Exception as e:
+                st.error(f"❌ Erro: {e}")
+            progresso.progress((i + 1) / total)
+        st.success("✅ Alterações salvas com sucesso!")
+
+
     csv = df_filtrado.to_csv(index=False, sep=";", encoding="latin1")
 
     st.download_button(
