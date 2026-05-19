@@ -82,7 +82,7 @@ menu = st.sidebar.selectbox(
 )
 
 df = pd.DataFrame()
-cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
+cores = ['#004830', '#8b0000', '#FEBE00', '#006A89']
 
 # ==========================
 # 🔄 MENU
@@ -91,6 +91,7 @@ cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
 if menu == "São Paulo":
     st.header("Dashboard São Paulo")
     df = carregar_dados("data/inventario_maquinas_exemplo.csv")
+    cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
 
 elif menu == "Rio de Janeiro":
     st.header("Dashboard Rio de Janeiro")
