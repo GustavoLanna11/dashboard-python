@@ -33,6 +33,7 @@ if st.sidebar.button("🚪 Sair"):
 
 API_URL = "https://api-inventario-wudx.onrender.com/dados"
 EDITAR_URL = "https://api-inventario-wudx.onrender.com/editar_maquina"
+EXCLUIR_URL = "https://api-inventario-wudx.onrender.com/excluir_maquina"
 
 API_USER = os.environ.get("API_USER")
 API_PASSWORD = os.environ.get("API_PASSWORD")
@@ -422,6 +423,83 @@ if not df.empty:
             )
 
             st.rerun()
+
+
+
+    
+    # ==========================
+    # 🗑️ EXCLUIR MÁQUINA
+    # ==========================
+
+    if menu == "Dados pela API" and not df_filtrado.empty:
+
+        with st.expander("🗑️ Remover máquina do inventário", expanded=False):
+
+            st.warning(
+                "A exclusão remove permanentemente o registro do MongoDB."
+            )
+
+            maquinas = sorted(
+                df_filtrado["Nome da máquina"]
+                .dropna()
+                .astype(str)
+                .unique()
+                .tolist()
+            )
+
+            if maquinas:
+                maquina_selecionada = st.selectbox(
+                    "Selecione a máquina que deseja remover",
+                    options=maquinas,
+                    key="maquina_para_excluir"
+                )
+
+                confirmar = st.checkbox(
+                    f"Confirmo a exclusão da máquina {maquina_selecionada}",
+                    key="confirmar_exclusao"
+                )
+
+                if st.button(
+                    "🗑️ Excluir máquina",
+                    type="primary",
+                    disabled=not confirmar,
+                    key="botao_excluir_maquina"
+                ):
+                    try:
+                        response = requests.delete(
+                            EXCLUIR_URL,
+                            auth=(API_USER, API_PASSWORD),
+                            json={
+                                "Nome da máquina": maquina_selecionada
+                            },
+                            timeout=30
+                        )
+
+                        if response.status_code == 200:
+                            st.success(
+                                f"Máquina {maquina_selecionada} excluída com sucesso!"
+                            )
+                            st.rerun()
+
+                        elif response.status_code == 404:
+                            st.error(
+                                "A máquina não foi encontrada no banco de dados."
+                            )
+
+                        elif response.status_code == 401:
+                            st.error(
+                                "Não autorizado. Verifique as credenciais da API."
+                            )
+
+                        else:
+                            st.error(
+                                f"Falha ao excluir: {response.status_code} - "
+                                f"{response.text}"
+                            )
+
+                    except requests.RequestException as e:
+                        st.error(f"Erro de comunicação com a API: {e}")
+
 
     # ==========================
     # 📥 DOWNLOAD CSV
