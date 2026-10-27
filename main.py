@@ -1,124 +1,123 @@
 import streamlit as st
 import pandas as pd
 import requests
+import io
+import math
 import os
+from datetime import datetime
 
-from src.auth import login
-from src.loader import carregar_dados
-from src.graph import grafico_barras, grafico_pizza
-from src.layout import titulo_principal, filtro_departamento, mostrar_kpis
+st.set_page_config(
+    page_title="Inventário de Máquinas",
+    page_icon="💻",
+    layout="wide"
+)
 
-# ==========================
-# 🔐 CONTROLE DE LOGIN
-# ==========================
+API_URL = "https://api-inventario-wudx.onrender.com"
 
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+API_USER = os.getenv(
+    "API_USER",
+    "admin"
+)
 
-if not st.session_state.logged_in:
-    login()
-    st.stop()
+API_PASSWORD = os.getenv(
+    "API_PASSWORD",
+    "admin"
+)
 
-# ==========================
-# 🚪 LOGOUT
-# ==========================
 
-if st.sidebar.button("🚪 Sair"):
-    st.session_state.logged_in = False
-    st.rerun()
+def api_auth():
+    return (
+        API_USER,
+        API_PASSWORD
+    )
 
-# ==========================
-# 🔐 CREDENCIAIS API (ENV)
-# ==========================
-
-API_URL = "https://api-inventario-wudx.onrender.com/dados"
-EDITAR_URL = "https://api-inventario-wudx.onrender.com/editar_maquina"
-EXCLUIR_URL = "https://api-inventario-wudx.onrender.com/excluir_maquina"
-
-API_USER = os.environ.get("API_USER")
-API_PASSWORD = os.environ.get("API_PASSWORD")
-
-# ==========================
-# 📊 DASHBOARD
-# ==========================
-
-colunas_esperadas = [
-    "Nome da máquina",
-    "Proprietário",
-    "Etiqueta",
-    "Cidade",
-    "Departamento",
-    "Unidade Residente",
-    "Marca",
-    "Número de Série",
-    "Tipo",
-    "Modelo",
-    "Licença",
-    "Processador",
-    "Troca de máquina",
-    "Tipo de memória",
-    "Pentes",
-    "Tamanho",
-    "Armazenamento",
-    "Tipo de armazenamento",
-    "Licença Windows",
-    "Troca ou Upgrade",
-    "Prioridade",
-    "Antivírus",
-    "Upgrade?",
-    "Em uso?",
-    "Está no AD?",
-    "Observações"
-]
-
-# ==========================
-# 📥 CARREGAR DADOS API
-# ==========================
 
 def carregar_dados_api():
-
     try:
-
         response = requests.get(
-            API_URL,
-            auth=(API_USER, API_PASSWORD),
-            timeout=30
+            f"{API_URL}/dados",
+            auth=api_auth(),
+            timeout=60
         )
 
-        if response.status_code == 401:
-            st.error("🔒 Não autorizado na API.")
-            return pd.DataFrame(columns=colunas_esperadas)
+        if response.status_code == 200:
+            return pd.DataFrame(
+                response.json()
+            )
 
-        response.raise_for_status()
-
-        dados_json = response.json()
-
-        df = pd.DataFrame(dados_json)
-
-        for col in colunas_esperadas:
-            if col not in df.columns:
-                df[col] = None
-
-        df = df[colunas_esperadas]
-
-        st.success("✅ Dados carregados automaticamente da API!")
-
-        return df
+        st.error(
+            f"Erro ao carregar API: {response.status_code}"
+        )
 
     except Exception as e:
+        st.error(
+            f"Erro de conexão: {e}"
+        )
 
-        st.error(f"❌ Erro ao carregar dados da API: {e}")
+    return pd.DataFrame()
 
-        return pd.DataFrame(columns=colunas_esperadas)
 
-# ==========================
-# 🌐 LAYOUT
-# ==========================
+def carregar_tentativas(status="pendente"):
+    try:
+        response = requests.get(
+            f"{API_URL}/tentativas_cadastro",
+            params={"status": status},
+            auth=api_auth(),
+            timeout=60
+        )
 
-titulo_principal()
+        if response.status_code == 200:
+            return response.json()
+
+        st.error(
+            f"Erro ao carregar tentativas: "
+            f"{response.status_code}"
+        )
+
+    except Exception as e:
+        st.error(
+            f"Erro ao carregar tentativas: {e}"
+        )
+
+    return []
+
+
+def decidir_tentativa(tentativa_id, decisao):
+    try:
+        response = requests.post(
+            f"{API_URL}/tentativas_cadastro/"
+            f"{tentativa_id}/decidir",
+            json={
+                "decisao": decisao
+            },
+            auth=api_auth(),
+            timeout=60
+        )
+
+        if response.status_code == 200:
+            return True, response.json().get(
+                "mensagem",
+                "Operação concluída."
+            )
+
+        try:
+            mensagem = response.json().get(
+                "erro",
+                "Erro desconhecido."
+            )
+        except Exception:
+            mensagem = response.text
+
+        return False, mensagem
+
+    except Exception as e:
+        return False, str(e)
+
+
+st.title("💻 Inventário de Máquinas")
 
 menu = st.sidebar.selectbox(
-    "Selecione uma opção",
+    "Menu",
     [
         "São Paulo",
         "Rio de Janeiro",
@@ -127,393 +126,460 @@ menu = st.sidebar.selectbox(
     ]
 )
 
-df = pd.DataFrame()
 
-cores = ["#026141", "#9b1c1c", "#FEBE00", "#006A89"]
+if menu == "Dados pela API":
 
-# ==========================
-# 🔄 MENU
-# ==========================
-
-if menu == "São Paulo":
-
-    st.header("Dashboard São Paulo")
-
-    df = carregar_dados("data/inventario_maquinas_exemplo.csv")
-
-    cores = ['#FF6347', '#4682B4', '#32CD32', '#FF0000']
-
-elif menu == "Rio de Janeiro":
-
-    st.header("Dashboard Rio de Janeiro")
-
-    df = carregar_dados("data/inventario_maquinas_exemplo2.csv")
-
-    cores = ['#2980B9', '#F39C12', '#1ABC9C', '#E74C3C']
-
-elif menu == "Planilha Personalizada":
-
-    st.header("📤 Dashboard Personalizado")
-
-    uploaded_file = st.file_uploader(
-        "Envie sua planilha (.csv ou .xlsx)",
-        type=["csv", "xlsx"]
-    )
-
-    if uploaded_file:
-
-        try:
-
-            if uploaded_file.name.endswith(".csv"):
-                df_temp = pd.read_csv(
-                    uploaded_file,
-                    sep=";",
-                    encoding="latin1"
-                )
-            else:
-                df_temp = pd.read_excel(uploaded_file)
-
-            colunas_faltando = [
-                col for col in colunas_esperadas
-                if col not in df_temp.columns
-            ]
-
-            if colunas_faltando:
-
-                st.warning(
-                    "⚠️ A planilha está faltando as seguintes colunas:"
-                )
-
-                st.write("- " + "\n- ".join(colunas_faltando))
-
-                for col in colunas_faltando:
-                    df_temp[col] = None
-
-            else:
-
-                st.success("✅ Planilha carregada com sucesso!")
-
-            df = df_temp[colunas_esperadas]
-
-        except Exception as e:
-
-            st.error(f"❌ Erro ao carregar a planilha: {e}")
-
-    else:
-
-        with st.expander(
-            "📋 Ver colunas esperadas para o arquivo"
-        ):
-
-            st.markdown(
-                "Sua planilha precisa conter **exatamente essas colunas**:"
-            )
-
-            st.markdown("- " + "\n- ".join(colunas_esperadas))
-
-elif menu == "Dados pela API":
-
-    st.header("📡 Dashboard Automático (dados da API)")
-
-    if st.button("🔄 Atualizar dados"):
-        st.rerun()
+    st.subheader("📡 Dados pela API")
 
     df = carregar_dados_api()
 
-# ==========================
-# 📊 GRÁFICOS
-# ==========================
+    if not df.empty:
 
-if not df.empty:
+        colunas = [
+            coluna
+            for coluna in df.columns
+            if coluna != "_id"
+        ]
 
-    mostrar_kpis(df)
-
-    if menu == "Dados pela API":
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            grafico_pizza(
-                df,
-                "Antivírus",
-                "Antivírus",
-                cores
-            )
-
-        with col2:
-            grafico_pizza(
-                df,
-                "Licença Windows",
-                "Licença Windows",
-                cores
-            )
-
-        col3, col4 = st.columns(2)
-
-        with col3:
-            grafico_barras(
-                df,
-                "Tamanho",
-                "Memória RAM",
-                cores
-            )
-
-        with col4:
-            grafico_barras(
-                df,
-                "Tipo",
-                "Tipo de Máquina",
-                cores
-            )
-
-        grafico_pizza(
-            df,
-            "Tipo de armazenamento",
-            "Disco Rígido",
-            cores
-        )
-
-    else:
-
-        col3, col4, col6 = st.columns(3)
-
-        with col6:
-            grafico_pizza(
-                df,
-                "Antivírus",
-                "Antivírus",
-                cores
-            )
-
-        with col3:
-            grafico_pizza(
-                df,
-                "Licença Windows",
-                "Licença Windows",
-                cores
-            )
-
-        with col4:
-            grafico_barras(
-                df,
-                "Troca de máquina",
-                "Troca de Máquina",
-                cores
-            )
-
-        col2, col5, col1, col7 = st.columns(4)
-
-        with col1:
-            grafico_barras(
-                df,
-                "Tamanho",
-                "Memória RAM",
-                cores
-            )
-
-        with col2:
-            grafico_barras(
-                df,
-                "Tipo",
-                "Tipo de Máquina",
-                cores
-            )
-
-        with col5:
-            grafico_pizza(
-                df,
-                "Upgrade?",
-                "Upgrade?",
-                cores
-            )
-
-        with col7:
-            grafico_pizza(
-                df,
-                "Tipo de armazenamento",
-                "Disco Rígido",
-                cores
-            )
-
-    # ==========================
-    # 🔎 FILTRO
-    # ==========================
-
-    df_filtrado = filtro_departamento(df)
-
-    # ==========================
-    # ✏️ CAMPOS EDITÁVEIS
-    # ==========================
-
-    colunas_editaveis = [
-        "Etiqueta",
-        "Cidade",
-        "Departamento",
-        "Unidade Residente",
-        "Observações"
-    ]
-
-    colunas_bloqueadas = [
-        col for col in df_filtrado.columns
-        if col not in colunas_editaveis
-    ]
-
-    # ==========================
-    # 🔽 ÁREA EDITÁVEL
-    # ==========================
-
-    with st.expander(
-        "✏️ Editar Informações",
-        expanded=False
-    ):
-
-        df_editado = st.data_editor(
-            df_filtrado,
-            use_container_width=True,
-            disabled=colunas_bloqueadas,
-            num_rows="fixed",
-            hide_index=True
-        )
-
-        # ==========================
-        # 💾 SALVAR ALTERAÇÕES
-        # ==========================
-
-        if st.button("💾 Salvar Alterações"):
-
-            progresso = st.progress(0)
-
-            total = len(df_editado)
-
-            for i, (_, row) in enumerate(df_editado.iterrows()):
-
-                try:
-
-                    # ✅ Corrige NaN / None
-                    dados_limpos = (
-                        row.fillna("")
-                        .replace([float("inf"), float("-inf")], "")
-                        .to_dict()
-                    )
-
-                    response = requests.put(
-                        EDITAR_URL,
-                        auth=(API_USER, API_PASSWORD),
-                        json=dados_limpos,
-                        timeout=30
-                    )
-
-                    if response.status_code != 200:
-
-                        st.warning(
-                            f"⚠️ Erro ao atualizar "
-                            f"{row['Nome da máquina']}"
-                        )
-
-                except Exception as e:
-
-                    st.error(f"❌ Erro: {e}")
-
-                progresso.progress((i + 1) / total)
-
-            progresso.empty()
-
-            st.success(
-                "✅ Alterações salvas com sucesso!"
-            )
-
-            st.rerun()
-
-
-
-    
-    # ==========================
-    # 🗑️ EXCLUIR MÁQUINA
-    # ==========================
-
-    if menu == "Dados pela API" and not df_filtrado.empty:
-
-        with st.expander("🗑️ Remover máquina do inventário", expanded=False):
-
-            st.warning(
-                "A exclusão remove permanentemente o registro do MongoDB."
-            )
-
-            maquinas = sorted(
-                df_filtrado["Nome da máquina"]
+        if "Cidade" in df.columns:
+            cidades = [
+                "Todas"
+            ] + sorted(
+                df["Cidade"]
                 .dropna()
                 .astype(str)
                 .unique()
                 .tolist()
             )
 
-            if maquinas:
-                maquina_selecionada = st.selectbox(
-                    "Selecione a máquina que deseja remover",
-                    options=maquinas,
-                    key="maquina_para_excluir"
+            cidade_filtro = st.selectbox(
+                "Filtrar por cidade",
+                cidades
+            )
+
+            if cidade_filtro != "Todas":
+                df = df[
+                    df["Cidade"].astype(str)
+                    == cidade_filtro
+                ]
+
+        st.markdown("### 📊 Resumo")
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+            st.metric(
+                "Máquinas",
+                len(df)
+            )
+
+        with col2:
+            if "Cidade" in df.columns:
+                st.metric(
+                    "Cidades",
+                    df["Cidade"]
+                    .nunique()
+                )
+            else:
+                st.metric(
+                    "Cidades",
+                    0
                 )
 
-                confirmar = st.checkbox(
-                    f"Confirmo a exclusão da máquina {maquina_selecionada}",
-                    key="confirmar_exclusao"
+        with col3:
+            if "Departamento" in df.columns:
+                st.metric(
+                    "Departamentos",
+                    df["Departamento"]
+                    .nunique()
+                )
+            else:
+                st.metric(
+                    "Departamentos",
+                    0
                 )
 
-                if st.button(
-                    "🗑️ Excluir máquina",
-                    type="primary",
-                    disabled=not confirmar,
-                    key="botao_excluir_maquina"
-                ):
-                    try:
-                        response = requests.delete(
-                            EXCLUIR_URL,
-                            auth=(API_USER, API_PASSWORD),
-                            json={
-                                "Nome da máquina": maquina_selecionada
-                            },
-                            timeout=30
+        with col4:
+            if "Unidade Residente" in df.columns:
+                st.metric(
+                    "Unidades",
+                    df["Unidade Residente"]
+                    .nunique()
+                )
+            else:
+                st.metric(
+                    "Unidades",
+                    0
+                )
+
+        st.markdown("### 📈 Distribuição")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if "Cidade" in df.columns:
+                st.write(
+                    "Máquinas por cidade"
+                )
+
+                cidade_data = (
+                    df["Cidade"]
+                    .fillna("Não informado")
+                    .value_counts()
+                )
+
+                st.bar_chart(cidade_data)
+
+        with col2:
+            if "Departamento" in df.columns:
+                st.write(
+                    "Máquinas por departamento"
+                )
+
+                departamento_data = (
+                    df["Departamento"]
+                    .fillna("Não informado")
+                    .value_counts()
+                )
+
+                st.bar_chart(
+                    departamento_data
+                )
+
+        st.markdown("---")
+
+        st.subheader(
+            "⚠️ Tentativas de cadastro"
+        )
+
+        st.caption(
+            "Máquinas que tentaram entrar no inventário "
+            "com número de série já existente."
+        )
+
+        tentativas = carregar_tentativas(
+            "pendente"
+        )
+
+        if not tentativas:
+            st.success(
+                "Nenhuma tentativa pendente."
+            )
+
+        else:
+
+            st.info(
+                f"{len(tentativas)} tentativa(s) "
+                "aguardando decisão."
+            )
+
+            for tentativa in tentativas:
+
+                tentativa_id = tentativa.get(
+                    "_id"
+                )
+
+                maquina = tentativa.get(
+                    "dados_maquina",
+                    {}
+                )
+
+                nome = tentativa.get(
+                    "Nome da máquina",
+                    "Não informado"
+                )
+
+                serial = tentativa.get(
+                    "Número de Série",
+                    "Não informado"
+                )
+
+                maquina_existente = tentativa.get(
+                    "maquina_existente",
+                    "Não informado"
+                )
+
+                quantidade = tentativa.get(
+                    "quantidade_tentativas",
+                    1
+                )
+
+                with st.container(border=True):
+
+                    col1, col2 = st.columns(
+                        [4, 2]
+                    )
+
+                    with col1:
+
+                        st.markdown(
+                            f"### 🖥️ {nome}"
                         )
 
-                        if response.status_code == 200:
-                            st.success(
-                                f"Máquina {maquina_selecionada} excluída com sucesso!"
+                        st.write(
+                            f"**Número de Série:** "
+                            f"`{serial}`"
+                        )
+
+                        st.write(
+                            f"**Máquina que já possui "
+                            f"esse serial:** "
+                            f"`{maquina_existente}`"
+                        )
+
+                        st.write(
+                            f"**Tentativas:** "
+                            f"{quantidade}"
+                        )
+
+                        if maquina:
+                            with st.expander(
+                                "Ver dados enviados"
+                            ):
+                                st.json(maquina)
+
+                    with col2:
+
+                        st.write(
+                            "### Decisão"
+                        )
+
+                        if st.button(
+                            "✅ Permitir",
+                            key=f"aprovar_{tentativa_id}",
+                            use_container_width=True
+                        ):
+
+                            sucesso, mensagem = (
+                                decidir_tentativa(
+                                    tentativa_id,
+                                    "aprovar"
+                                )
                             )
+
+                            if sucesso:
+                                st.success(
+                                    mensagem
+                                )
+                                st.rerun()
+                            else:
+                                st.error(
+                                    mensagem
+                                )
+
+                        if st.button(
+                            "❌ Recusar",
+                            key=f"recusar_{tentativa_id}",
+                            use_container_width=True
+                        ):
+
+                            sucesso, mensagem = (
+                                decidir_tentativa(
+                                    tentativa_id,
+                                    "recusar"
+                                )
+                            )
+
+                            if sucesso:
+                                st.success(
+                                    mensagem
+                                )
+                                st.rerun()
+                            else:
+                                st.error(
+                                    mensagem
+                                )
+
+        st.markdown("---")
+
+        st.subheader(
+            "📋 Inventário"
+        )
+
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True
+        )
+
+    else:
+
+        st.warning(
+            "Nenhum dado encontrado na API."
+        )
+
+        st.subheader(
+            "⚠️ Tentativas de cadastro"
+        )
+
+        tentativas = carregar_tentativas(
+            "pendente"
+        )
+
+        if not tentativas:
+            st.info(
+                "Nenhuma tentativa pendente."
+            )
+
+        for tentativa in tentativas:
+
+            tentativa_id = tentativa.get(
+                "_id"
+            )
+
+            maquina = tentativa.get(
+                "dados_maquina",
+                {}
+            )
+
+            nome = tentativa.get(
+                "Nome da máquina",
+                "Não informado"
+            )
+
+            serial = tentativa.get(
+                "Número de Série",
+                "Não informado"
+            )
+
+            with st.container(border=True):
+
+                st.markdown(
+                    f"### 🖥️ {nome}"
+                )
+
+                st.write(
+                    f"**Número de Série:** `{serial}`"
+                )
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+
+                    if st.button(
+                        "✅ Permitir",
+                        key=f"aprovar_empty_{tentativa_id}",
+                        use_container_width=True
+                    ):
+
+                        sucesso, mensagem = (
+                            decidir_tentativa(
+                                tentativa_id,
+                                "aprovar"
+                            )
+                        )
+
+                        if sucesso:
+                            st.success(mensagem)
                             st.rerun()
-
-                        elif response.status_code == 404:
-                            st.error(
-                                "A máquina não foi encontrada no banco de dados."
-                            )
-
-                        elif response.status_code == 401:
-                            st.error(
-                                "Não autorizado. Verifique as credenciais da API."
-                            )
-
                         else:
-                            st.error(
-                                f"Falha ao excluir: {response.status_code} - "
-                                f"{response.text}"
+                            st.error(mensagem)
+
+                with col2:
+
+                    if st.button(
+                        "❌ Recusar",
+                        key=f"recusar_empty_{tentativa_id}",
+                        use_container_width=True
+                    ):
+
+                        sucesso, mensagem = (
+                            decidir_tentativa(
+                                tentativa_id,
+                                "recusar"
                             )
+                        )
 
-                    except requests.RequestException as e:
-                        st.error(f"Erro de comunicação com a API: {e}")
+                        if sucesso:
+                            st.success(mensagem)
+                            st.rerun()
+                        else:
+                            st.error(mensagem)
 
 
-    # ==========================
-    # 📥 DOWNLOAD CSV
-    # ==========================
+elif menu == "Planilha Personalizada":
 
-    csv = df_filtrado.to_csv(
-        index=False,
-        sep=";",
-        encoding="latin1"
+    st.title(
+        "📊 Planilha Personalizada"
     )
 
-    st.download_button(
-        label="📥 Baixar dados filtrados (CSV)",
-        data=csv,
-        file_name="dados_filtrados.csv",
-        mime="text/csv"
+    arquivo = st.file_uploader(
+        "Envie uma planilha Excel",
+        type=["xlsx", "xls"]
     )
+
+    if arquivo:
+
+        try:
+            df = pd.read_excel(
+                arquivo
+            )
+
+            st.success(
+                "Planilha carregada com sucesso."
+            )
+
+            st.dataframe(
+                df,
+                use_container_width=True,
+                hide_index=True
+            )
+
+            output = io.BytesIO()
+
+            with pd.ExcelWriter(
+                output,
+                engine="openpyxl"
+            ) as writer:
+                df.to_excel(
+                    writer,
+                    index=False
+                )
+
+            st.download_button(
+                "⬇️ Baixar planilha",
+                data=output.getvalue(),
+                file_name="inventario.xlsx",
+                mime=(
+                    "application/vnd.openxmlformats-"
+                    "officedocument.spreadsheetml.sheet"
+                )
+            )
+
+        except Exception as e:
+
+            st.error(
+                f"Erro ao ler planilha: {e}"
+            )
+
+
+else:
+
+    st.title(
+        f"💻 Inventário - {menu}"
+    )
+
+    df = carregar_dados_api()
+
+    if not df.empty and "Cidade" in df.columns:
+
+        df = df[
+            df["Cidade"]
+            .astype(str)
+            .str.lower()
+            == menu.lower()
+        ]
+
+    if df.empty:
+
+        st.info(
+            "Nenhuma máquina encontrada."
+        )
+
+    else:
+
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True
+        )
